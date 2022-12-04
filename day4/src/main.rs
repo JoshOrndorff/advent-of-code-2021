@@ -3,6 +3,9 @@
 struct Board {
     /// A 5X5 2D table where each cell has a number and is either marked or not.
     data: [[(u32, bool); 5]; 5],
+    /// A checkbox for a player to mark that this board has won. This is not set
+    /// automatically. It is up to the player to mark it if they care to.
+    has_won: bool,
 }
 
 impl Board {
@@ -20,14 +23,11 @@ impl Board {
             data[i] = entries[0..5].try_into().unwrap();
         }
 
-        Self { data }
+        Self { data, has_won: false }
     }
 
     /// Try to mark a square on the board
     fn mark(&mut self, target: u32) {
-        //todo maybe return something.
-        // could be true if something. was marked
-        // could do an automatic win check and return the puzzle answer
         for (n, m) in self.data.iter_mut().flatten() {
             if target == *n {
                 *m = true;
@@ -95,15 +95,20 @@ fn main() {
         .map(|n| n.parse::<u32>().unwrap());
 
     let mut boards = input_iter.map(Board::new).collect::<Vec<_>>();
+    let mut winning_scores = Vec::<u32>::new();
 
-    'outer: for draw in draws {
+    for draw in draws {
         for b in &mut boards {
             b.mark(draw);
-            if b.is_winning() {
+            if b.is_winning() && !b.has_won {
+                b.has_won = true;
                 let score = b.sum_of_unmarked() * draw;
-                println!("Winning board with a score of {}!", score);
-                break 'outer;
+                winning_scores.push(score);
+                // println!("Winning board with a score of {}!", score);
             }
         }
     }
+
+    println!("First winning score is {}", winning_scores.first().unwrap());
+    println!(" Last winning score is {}", winning_scores.last().unwrap());
 }
