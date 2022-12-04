@@ -2,8 +2,7 @@ use std::fs;
 use nom::{
     IResult,
     branch::alt,
-    bytes::complete::{tag, take_while_m_n},
-    combinator::map_res,
+    bytes::complete::tag,
     sequence::{preceded, pair},
     character::complete::{digit1, space1},
     multi::many1,
